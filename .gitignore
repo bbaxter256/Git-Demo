@@ -1,0 +1,7 @@
+*.pyc
+.DS_Store
+.env
+__pycache__
+search-venv
+marki-plotly
+Product Search Documentation

@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  productsearch:
+    build:
+      context: .
+      dockerfile: Dockerfile.productsearch
+    container_name: productsearch
+    command: python productsearch.py
+    volumes:
+      - .:/code
+    ports:
+      - "80:8080"
