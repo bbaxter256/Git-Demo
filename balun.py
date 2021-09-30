@@ -22,6 +22,7 @@ def load_specs():
             'file' : df.at[id, 'file'],
             'freq-low' : df.at[id, 'freq-low'],
             'freq-high' : df.at[id, 'freq-high'],
+            'amplitude balance (dB)' : df.at[id, 'ampBal'],
         }
         datasheet[id] = sheet
     
@@ -83,12 +84,13 @@ class Balun(Passive):
         self.outport0 = out0
 
     def load_graph_data(self, graph):
-        return
+        # return
         if graph in self.data: return
         if graph == RL:
             self.get_returnloss_data()
         elif graph == IL:
-            pass
+            # pass 
+            self.get_insertionloss_data()
         elif graph == ISO:
             self.get_isolation_data()
         elif graph == AMP_B:
@@ -97,7 +99,7 @@ class Balun(Passive):
             self.get_phasebal_data()
         
     def load_class_vars():
-        P.graph_options = [RL, ISO, AMP_B, PH_B]
+        P.graph_options = [RL, IL, ISO, AMP_B, PH_B]
 
         P.graph_labels = {
             RL : {
@@ -147,8 +149,24 @@ class Balun(Passive):
         self.data[RL] = data 
         self.linekeys[RL] = ['Common', 'Out 0', 'Out 180']
 
-    def get_insertionloss_data():
-        pass
+    def get_insertionloss_data(self):
+        # pass
+
+        data = dict()
+        frequencydata = self.get_frequency_data()
+        out0 = self.touchstone_data['S' + self.commonport + self.outport0 + 'DB']
+        out180 = self.touchstone_data['S' + self.commonport + self.outport180 + 'DB']
+
+        xdata1, ydata1 = self.handle_outliers(frequencydata, out0)
+        xdata2, ydata2 = self.handle_outliers(frequencydata, out180)
+
+        data['Out 0'] = {'xdata' : xdata1,
+                        'ydata' : ydata1}
+        data['Out 180'] = {'xdata' : xdata2,
+                        'ydata' : ydata2}
+        
+        self.data[IL] = data
+        self.linekeys[IL] = ['Out 0', 'Out 180']
 
     def get_isolation_data(self):
         data = dict()
@@ -183,10 +201,10 @@ class Balun(Passive):
             o1 = out0[i]
             x = frequencydata[i]
             if (o2 < 0 and o1 < 0) or (o2 > 0 and o1 > 0):
-                phasebal.append(o1 - o2)
+                phasebal.append(abs(o1 - o2))
                 xdata.append(x)
             else:
-                phasebal.append(o1 - o2)
+                phasebal.append(abs(o1 - o2))
                 xdata.append(x)
         
         data = dict()
@@ -195,5 +213,30 @@ class Balun(Passive):
         self.data[PH_B] = data
         self.linekeys[PH_B] = [PH_B]
 
+    def handle_outliers(self, xdata, ydata):
+        xreturn = []
+        yreturn = []
 
+        prev, prev_diff = None, None
 
+        for i in range(len(xdata)):
+            yval = ydata[i]
+            xval = xdata[i]
+
+            if prev == None:
+                prev = yval
+                prev_diff = None
+                yreturn.append(yval)
+                xreturn.append(xval)
+            elif prev_diff == None:
+                prev_diff = yval - prev
+                prev = yval
+                yreturn.append(yval)
+                xreturn.append(xval)
+            elif abs(prev_diff - (yval - prev)) < 1:
+                prev_diff = yval - prev
+                prev = yval
+                yreturn.append(yval)
+                xreturn.append(xval)
+
+        return xreturn, yreturn
