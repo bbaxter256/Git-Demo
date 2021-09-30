@@ -41,12 +41,36 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 server = app.server
 
 '''
+==============================================================================
 Display component layouts
+==============================================================================
 '''
+
 def add_error():
+    '''
+    This function uses the ConfirmDialog dash core component to display an error
+    message using the browser's native "confirm" modal with optional message parameter and
+    "OK" and "Cancel" buttons.
+    
+    Parameters:
+        message : string
+            message to be displayed in confirm modal
+    Returns:
+        object : ConfirmDialog object (dash_core_components)
+            
+    '''
     return dcc.ConfirmDialog(id='error-msg', message='')
 
 def add_header(title):
+    '''
+    This function adds html "header" divs using dash html components.
+    
+    Parameters:
+        title : string
+            title string to be displayed (indicates which product is being searched)
+    Returns:
+        object : html.Div (dash_html_components)
+    '''
     return html.Div([ 
             html.Br(),
 
@@ -70,6 +94,23 @@ def add_header(title):
         )
 
 def add_inputs(idname, text, unit, hide):
+    '''
+    This function adds user text input blocks and associated labels using
+    dash html.Div and dcc.Input components.  The function uses input parameters
+    to dynamically create unique ids for each component.
+    
+    Parameters:
+        idname : string
+            string used as part of defining the id of the input component
+        text : string
+            text used as part of defining the label of the input component
+        unit : string
+            text used as part of defining the label of the input component
+        hide : boolean
+            True or False indicating whether or not to display the input
+    Returns:
+        object : html.Div (dash_html_components)
+    '''
     return html.Div([
             html.Div(
                 (text + ' Low ' + unit + ':'), 
@@ -134,6 +175,15 @@ def add_inputs(idname, text, unit, hide):
         ], id=(idname + '-inputs-row'), hidden=hide, className='row')
 
 def add_buttons():
+    '''
+    This function adds user input buttons using the dash html.Div and
+    html.Button components from the dash_html_components library.
+    
+    Parameters:
+        None
+    Returns:
+        object : html.Div (dash_html_components)
+    '''
     return html.Div([    
         html.Div([
             html.Button('Search', 
@@ -169,6 +219,15 @@ def add_buttons():
     ], id='search-reset-row', style={'display' : 'inline'}, className='row')
 
 def add_settings_text():
+    '''
+    This function adds "Settings" text to the html layout.  This component
+    is used later in a callback to open a series of "Settings" options.
+    
+    Parameters:
+        None
+    Returns:
+        object : html.Div (dash_html_components)
+    '''
     return html.Div([
         html.Div('.',
         style={
@@ -190,6 +249,16 @@ def add_settings_text():
     ], id='settings-text-row', className='row')
 
 def add_checklist(o,v):
+    '''
+    This function adds settings checkboxes to the html layout using the dash
+    dcc.Checklist component.
+    
+    Parameters:
+        o: List of Dicts (from product object x.graph_options)
+        v: List (used to select which checkboxes are default selections)
+    Returns:
+        object : html.Div (dash_html_components)
+    '''
     return html.Div([
         html.Div('.',
         style= {
@@ -210,6 +279,16 @@ def add_checklist(o,v):
     ], id='checklist-container', hidden=True, className='row' )
 
 def add_radiobuttons(o,v):
+    '''
+    This function adds table sortting radio buttons to the html layout using the dash
+    dcc.RadioItems component.
+    
+    Parameters:
+        o: List of Dicts
+        v: List (used to select which button is selected by default)
+    Returns:
+        object : html.Div (dash_html_components)
+    '''
     return html.Div([
         html.Div('.', style={'color':'white'}, className='one columns'),
 
@@ -219,10 +298,27 @@ def add_radiobuttons(o,v):
                 value=v,
                 labelStyle={'display':'inline-block'}
             )
-        ], className='five columns')
+        ], className='six columns')
     ], id='sort-options-row', className='row')
 
 def add_table(cols,sb,hcols,sdc):
+    '''
+    This function adds a table to the html layout using the DataTable from the 
+    dash_table library.  It also makes use of the dash dcc.Loading component
+    to provide an indication that the table is being populated in the background.
+    
+    Parameters:
+        cols: list of dicts
+            list of dicts used to store format information for the data table
+        sb : list of dicts (column used for sorting data table)
+            list of dicts used to indicate which column is used to sort the data table
+        hcols : list (hidden columns)
+            list used to indicate which columns are hidden
+        sdc : list of dicts
+            list of dicts used to change formatting of column being used to sort
+    Returns:
+        object : html.Div (dash_html_components)
+    '''
     return dcc.Loading(id='loading-graphs',
         type='default',
         fullscreen=False,
@@ -284,6 +380,16 @@ def add_table(cols,sb,hcols,sdc):
     )
 
 def add_figures():
+    '''
+    This function adds a container for figures to the html layout using the dash
+    html.Div component.  It also makes use of the dash dcc.Loading component
+    to provide an indication that figures are being populated in the background.
+    
+    Parameters:
+        None
+    Returns:
+        object : html.Div (dash_html_components)
+    '''
     return dcc.Loading(id='loading-figures',
         type='circle',
         fullscreen=False,
@@ -296,6 +402,19 @@ def add_figures():
     )
 
 def search_container(product):
+    '''
+    This function configures the master html container for searching the selected
+    product type.  This function calls the other layout methods for configuring input,
+    settings and table options.
+    
+    Parameters:
+        product: String
+            String indicating which product type to configure the search for:
+                (mixer 'm', amplifier 'a', power divider 'pd', coupler 'c',
+                 balun 'b', etc.)
+    Returns:
+        object : html.Div (dash_html_components)
+    '''
     container_children = []
 
     container_children.append(add_error())
@@ -347,7 +466,7 @@ def search_container(product):
             {'label': M.graph_options[7], 'value': M.graph_options[7]},
             {'label': 'P1dB', 'value': 'p1db'},
         ]
-        value=[M.graph_options[0], M.graph_options[1], M.graph_options[2]]
+        value=[M.graph_options[0], M.graph_options[1], M.graph_options[2]]         
     elif product == 'a':
         options=[
             {'label': A.graph_options[0], 'value': A.graph_options[0]},
@@ -381,7 +500,7 @@ def search_container(product):
             {'label': B.graph_options[1], 'value': B.graph_options[1]},
             {'label': B.graph_options[2], 'value': B.graph_options[2]},
             {'label': B.graph_options[3], 'value': B.graph_options[3]},
-            #{'label': B.graph_options[4], 'value': B.graph_options[4]},
+            {'label': B.graph_options[4], 'value': B.graph_options[4]},
         ]
         value=[B.graph_options[0], B.graph_options[1], B.graph_options[2]]
 
@@ -400,6 +519,12 @@ def search_container(product):
             {'label': 'Model Name', 'value': 'mn'},
             {'label': 'Lowest Loss', 'value': 'll'},
         ]
+        value = 'mn'
+    elif product == 'b':
+        options = [
+            {'label': 'Model Name', 'value': 'mn'},
+            {'label': 'Lowest Loss', 'value': 'll'},
+            ]
         value = 'mn'
     else:
         options = []
@@ -521,10 +646,10 @@ def search_container(product):
             'type': 'numeric', 'format': Format(precision=2, scheme=Scheme.fixed, nully='---')},
             {'name': ['Insertion Loss Value', 'Med'], 'id': 'il-med-v', 'type': 'numeric'},
         ]
-        sort_by=[{'column_id': 'il-med-v','direction': 'desc'}]
+        sort_by=[{'column_id': 'model','direction': 'asc'}]
         hidden_columns=['il-med-v']
         style_data_conditional=[{'if': {'row_index': 'odd'},'backgroundColor': 'rgb(230, 230, 230)'},
-                                {'if': {'column_id': 'il-med'},'backgroundColor': COLOR['blue']}]
+                                {'if': {'column_id': 'model'},'backgroundColor': COLOR['blue']}]
 
     container_children.append(add_table(columns, sort_by, hidden_columns, style_data_conditional))
 
@@ -534,8 +659,12 @@ def search_container(product):
 
     return html.Div(children=container_children, id='container')
 
+'''
+=============================================================================
+display layout (Build the main page)
+=============================================================================
+'''
 
-#Display layout
 app.layout = html.Div([
     html.Div('DEMO - Updated 9/3/2021 11:00 am'),
     dcc.Tabs(id='search-tabs', value='m', children=[
@@ -548,29 +677,43 @@ app.layout = html.Div([
     html.Div([search_container('m')], id='search-tabs-container')
 ], style = {'font-family' : 'Roboto'})
 
-
-#Tab swicher to different product searches
-@app.callback(
-    Output('search-tabs-container', 'children'),
-    Input('search-tabs', 'value'),
-)
-def select_search_tab(tab):
-    return search_container(tab)
-
-
 '''
+=============================================================================
 Helper Functions
+=============================================================================
 '''
 
-#combine 2 lists
 def merge_lists(list1, list2):
+    '''
+    This function combines input list 1 with input list 2 and returns the combined list.
+    
+    Parameters:
+        list1: list
+            input list 1
+        list2: list
+            input list 2
+    Returns:
+        list
+            list with combined elements of list1 and list2
+    '''
     l = list1
     for i in list2:
         l.append(i)
     return l
 
-#Sort a list in order of another list
 def sort_list(list, order):
+    '''
+    This function sorts input list "list" to match the order of list input "order.
+    
+    Parameters:
+        list: list
+            input list 1 (unsorted input list)
+        order: list
+            input list 2 (list with desired sort)
+    Returns:
+        list
+            returns "list" sorted to match "order"
+    '''
     temp = []
     for i in order:
         if i in list:
@@ -578,11 +721,25 @@ def sort_list(list, order):
     return temp
 
 '''
+=============================================================================
 input/domain ranges calculation functions
+=============================================================================
 '''
 
-#Find the absolute min and max range for the data of the given products
 def minmaxx(products, graph):
+    '''
+    This function finds the absoulte min and max range for the data of the 
+    given products and graph types.
+    
+    Parameters:
+        products: list
+            list of product objects
+        graph: text
+            text name of data/graph type (i.e. "Phase Balance")
+    Returns:
+        Float64
+            returns xlow and xhigh as Float64 values
+    '''
     xlow, xhigh = None, None
     for p in products:
         try:
@@ -597,8 +754,24 @@ def minmaxx(products, graph):
 
     return (xlow, xhigh)
 
-#Find the display yrange to reflect the data within the xrange
 def minmaxy(products, xmin, xmax, graph_type):
+    '''
+    This function returns the min and max y values for the range xmin-to-xmax
+    for the provided product and graph_type.
+    
+    Parameters:
+        products: list
+            list of product objects
+        xmin: Float64
+            x-range min value
+        xmax: Float64
+            x-range max value
+        graph_type: text
+            text name of data/graph type (i.e. "Phase Balance")
+    Returns:
+        Float64
+            returns ylow and yhigh as Float64 values
+    '''
     ylow, yhigh = None, None
     for p in products:
 
@@ -623,8 +796,21 @@ def minmaxy(products, xmin, xmax, graph_type):
 
     return (ylow, yhigh)
 
-#Fill in blank inputs for fixed-frequency searchs
 def true_input_values(low, high):
+    '''
+    This function provides "missing" user input data required by lower level 
+    search functions.  It is a form of error prevention/correction and enables
+    search at single frequencies.
+    
+    Parameters:
+        low: Float64
+            user input value
+        high: Float64
+            user input value
+    Returns:
+        Float64
+            returns low and high as Float64 values
+    '''
     if low == None and high == None:
         low_freq, high_freq = None, None
     elif low == None:
@@ -638,11 +824,25 @@ def true_input_values(low, high):
 
 
 '''
+=============================================================================
 Product handling functions
+=============================================================================
 '''
 
-#build product object
 def create_object(class_name, name):
+    '''
+    This function creates a product object and adds the product to the
+    "LOADED_PRODUCT_OBJECTS" list.
+    
+    Parameters:
+        class_name: string
+            input string representing product class (i.e. 'M' for Mixers)
+        name: string 
+            input string parameter for naming the product object
+    Returns:
+        product object
+            product object (Mixer, Amplifier, Coupler, Balun or Power Divider)
+    '''
     global LOADED_PRODUCT_OBJECTS
     if class_name == M:
         p = M(name)
@@ -660,6 +860,18 @@ def create_object(class_name, name):
 
 #Create needed objects and remove uneeded ones
 def manage_load(selected_products_set, class_name):
+    '''
+    This function is used to 
+    
+    Parameters:
+        selected_products_set: string
+            input string representing product class (i.e. 'M' for Mixers)
+        class_name: string 
+            input string parameter for naming the product object
+    Returns:
+        product object
+            product object (Mixer, Amplifier, Coupler, Balun or Power Divider)
+    '''
     global LOADED_PRODUCT_OBJECTS
 
     active_products = []
@@ -697,7 +909,9 @@ def search_products(class_name, inputs):
     return data
 
 '''
+=============================================================================
 Figure handling functions
+=============================================================================
 '''
 
 #Build the multiple graphs that will be displayed together
@@ -814,8 +1028,18 @@ def handle_active_figures(class_name, checklist_values):
     ACTIVE_GRAPHS = sort_list(ACTIVE_GRAPHS, class_name.graph_options)
 
 '''
+=============================================================================
 Interactivity
+=============================================================================
 '''
+
+#Tab swicher to different product searches
+@app.callback(
+    Output('search-tabs-container', 'children'),
+    Input('search-tabs', 'value'),
+)
+def select_search_tab(tab):
+    return search_container(tab)
 
 #Toggle on and off setting
 @app.callback(
@@ -1089,8 +1313,20 @@ def table_interact(n_clicks, sort_value, cur_sort_by, checklist_values,
             output_sort_by=[{'column_id': 'model','direction': 'asc'}]
             output_style=cur_style
         elif tab == 'b':
-            output_sort_by=[{'column_id': 'il-med-v','direction': 'desc'}]
-            output_style=cur_style
+            if sort_value == 'mn':
+                col = 'model'
+                colsort = 'model'
+                dir = 'asc'
+            elif sort_value == 'll':
+                col = 'il-med'
+                colsort = 'il-med-v'
+                dir = 'desc'
+            output_sort_by = [{'column_id': colsort, 'direction': dir}]
+            output_style = [{'if': {'row_index': 'odd'},'backgroundColor': 'rgb(230, 230, 230)',},
+                        {'if': {'column_id': col},'backgroundColor': COLOR['blue'],},
+                        #{'if': {'column_id': 'datasheet'},'color': COLOR['blue'],'fontStyle': 'italic', 'textDecoration': 'underline'},
+                        ]
+            output_data = ba_table_data(SEARCHED_PRODUCT_OBJECTS, LOW_FREQ, HIGH_FREQ)
     
     # settings checklist
     elif input_id == 'settings-checklist':
@@ -1119,16 +1355,19 @@ def table_interact(n_clicks, sort_value, cur_sort_by, checklist_values,
 
 
 '''
+=============================================================================
 Product Functions
+=============================================================================
 '''
 
 # gather info to put on product datatable
 def ba_table_data(searched_objects, low, high):
     product_table_data = []
+    
     for p in searched_objects:
         d = p.get_col_data()
 
-        if False and low != high:
+        if low != high:
             min,max,med,bmin,bmax,bmed = p.getystats(low,high, balun.IL)
             if min == None:
                 d['il-min'] = '---'
@@ -1188,6 +1427,7 @@ def co_table_data(searched_objects, low, high):
 # gather info to put on product datatable
 def pd_table_data(searched_objects, low, high):
     product_table_data = []
+    
     for p in searched_objects:
         d = p.get_col_data()
 
@@ -1341,7 +1581,9 @@ def m_table_data(searched_mixer_objects, sort, low, high):
 
 
 '''
+==============================================================================
 other MIXER Functions
+==============================================================================
 '''
 
 #Fill in blank inputs for fixed-frequency searchs
