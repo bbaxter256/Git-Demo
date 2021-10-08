@@ -858,10 +858,10 @@ def create_object(class_name, name):
     LOADED_PRODUCT_OBJECTS[name] = p
     return p
 
-#Create needed objects and remove uneeded ones
 def manage_load(selected_products_set, class_name):
     '''
-    This function is used to 
+    This function maintains a list of product objects to be used for
+    calculating table parameters and plot traces.  
     
     Parameters:
         selected_products_set: string
@@ -869,8 +869,7 @@ def manage_load(selected_products_set, class_name):
         class_name: string 
             input string parameter for naming the product object
     Returns:
-        product object
-            product object (Mixer, Amplifier, Coupler, Balun or Power Divider)
+        list of product objects
     '''
     global LOADED_PRODUCT_OBJECTS
 
